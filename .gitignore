@@ -1,2 +1,6 @@
 bk/
-Main.java
+.git.bk/
+.idea/
+.gradle/
+*class
+build/
