@@ -1,0 +1,201 @@
+type: edu
+custom_name: stage2
+files:
+- name: src/analyzer/Main.java
+  visible: true
+  text: |
+    package analyzer;
+
+    import java.io.*;
+    import java.util.Arrays;
+
+    public class Main {
+        public static void main(String[] args) {
+            if (args.length < 3) {
+                System.out.println("Missing arguments");
+            }
+            String filename = args[0];
+            String pattern = args[1];
+            String type = args[2];
+
+            // read file
+            try (
+                    BufferedInputStream is = new BufferedInputStream(new FileInputStream(filename));
+            ) {
+                final int BUFF_SIZE = 128;
+                byte[] buffer = new byte[BUFF_SIZE];
+                int nread = is.read(buffer);
+                while (nread > 0) {
+                    boolean found = find(buffer, pattern);
+                    if (found) {
+                        System.out.println(type);
+                        return;
+                    }
+                    buffer[0] = buffer[BUFF_SIZE - 1];
+                    nread = is.read(buffer, 1, BUFF_SIZE - 1);
+                }
+                System.out.println("Unknown file type");
+            } catch (FileNotFoundException e) {
+                System.out.println("Cannot find file " + filename);
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private static boolean find(byte[] buffer, String pattern) {
+            char[] bpat = pattern.toCharArray();
+            int start = 0, end = buffer.length - 1;
+            int index = 0;
+            while (index <= (buffer.length - bpat.length)) {
+
+                boolean found = true;
+                for (int i = 0 ; i < bpat.length;  i++) {
+                   if (buffer[index + i] != bpat[i])  {
+                       index++;
+                       found = false;
+                   }
+                }
+                if (found == true) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+  learner_created: false
+- name: test/Clue.java
+  visible: false
+  text: |
+    public class Clue {
+        public String response;
+
+        public Clue(String response) {
+            this.response = response;
+        }
+    }
+  learner_created: false
+- name: test/MainTest.java
+  visible: false
+  text: |2
+
+    import analyzer.Main;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.CheckResult;
+    import org.hyperskill.hstest.testcase.TestCase;
+    import org.junit.BeforeClass;
+
+    import java.util.List;
+
+    public class MainTest extends StageTest<Clue> {
+        static String largeContent;
+
+        String pdf = "PDF document";
+        String doc = "DOC document";
+        String unknown = "Unknown file type";
+        String file = "doc.pdf";
+
+        public MainTest() throws Exception {
+            super(Main.class);
+        }
+
+        @Override
+        public List<TestCase<Clue>> generate() {
+            return List.of(
+                new TestCase<Clue>()
+                    .addArguments(new String[] {
+                            "--naive",
+                            file,
+                            "%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF-",
+                            pdf
+                        })
+                    .addFile(file, largeContent)
+                    .setAttach(new Clue(pdf)),
+
+                new TestCase<Clue>()
+                    .addArguments(new String[] {
+                            "--KMP",
+                            file,
+                            "%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF-",
+                            doc
+                        })
+                    .addFile(file, largeContent)
+                    .setAttach(new Clue(doc)),
+
+                new TestCase<Clue>()
+                    .addArguments(new String[] {
+                            "--naive",
+                            file,
+                            "%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF+",
+                            unknown
+                        })
+                    .addFile(file, largeContent)
+                    .setAttach(new Clue(unknown)),
+
+                new TestCase<Clue>()
+                    .addArguments(new String[] {
+                            "--KMP",
+                            file,
+                            "%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF+",
+                            unknown
+                        })
+                    .addFile(file, largeContent)
+                    .setAttach(new Clue(unknown))
+            );
+        }
+
+        @Override
+        public CheckResult check(String reply, Clue clue) {
+            reply = reply.strip();
+
+            if (reply.contains(doc) && reply.contains(pdf)) {
+                return CheckResult.wrong("There are both \"" + doc + "\" and \"" + pdf + "\"" +
+                    " in output, should be only one of them");
+            } else if (reply.contains(doc) && reply.contains(unknown)) {
+                return CheckResult.wrong("There are both \"" + doc + "\" and \"" + unknown + "\"" +
+                    " in output, should be only one of them");
+            } else if (reply.contains(pdf) && reply.contains(unknown)) {
+                return CheckResult.wrong("There are both \"" + pdf + "\" and \"" + unknown + "\"" +
+                    " in output, should be only one of them");
+            }
+
+            if (!reply.contains(clue.response)) {
+                return CheckResult.wrong("Your output does not contain \"" + clue.response + "\", but should." +
+                    "\n\nYour output:\n" + reply);
+            }
+
+            if (!reply.contains("seconds")) {
+                return CheckResult.wrong("Your output does not contain \"seconds\", but should." +
+                    "\n\nYour output:\n" + reply);
+            }
+
+            return CheckResult.correct();
+        }
+
+        @BeforeClass
+        public static void setLargeContent() {
+
+            StringBuilder content = new StringBuilder();
+
+            for (int i = 0; i< 6000; i++) {
+                content.append("%PDF");
+            }
+
+            content.append("%PDF-");
+            largeContent = content.toString();
+        }
+    }
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/64/stages/344/implement
+status: Failed
+feedback:
+  message: |-
+    Wrong answer in test #1
+
+    Your output does not contain &quot;PDF document&quot;, but should.
+
+    Your output:
+
+    Arguments: --naive doc.pdf %PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF%PDF- PDF document
+  time: Sun, 23 Aug 2020 11:05:26 UTC
+record: 1
