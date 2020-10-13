@@ -20,6 +20,8 @@ topics:
     theory_id: 6865
   - title: Introduction to OOP
     theory_id: 3614
+  - title: IDE
+    theory_id: 10996
   - title: What are streams
     theory_id: 5533
   - title: What is an exception
@@ -98,6 +100,8 @@ topics:
     theory_id: 3489
   - title: Arrays as parameters
     theory_id: 3594
+  - title: IntelliJ IDEA
+    theory_id: 3801
   - title: Write, compile, and run
     theory_id: 3739
   - title: JVM, JRE, and JDK
@@ -126,6 +130,8 @@ topics:
     theory_id: 3746
   - title: Command-line arguments
     theory_id: 3566
+  - title: IntelliJ Run Configurations
+    theory_id: 10630
   1:
   - title: The concept of patterns
     theory_id: 3611
@@ -149,16 +155,12 @@ topics:
     theory_id: 5712
   - title: Knuth-Morris-Pratt algorithm in Java
     theory_id: 5725
-  - title: IDE
-    theory_id: 3805
   - title: Strategy
     theory_id: 3556
   - title: Iterating over arrays
     theory_id: 3602
   - title: Overloading
     theory_id: 3525
-  - title: IntelliJ IDEA
-    theory_id: 3801
   - title: IDEA Basics
     theory_id: 5819
   - title: EduTools
