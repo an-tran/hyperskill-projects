@@ -1,5 +1,6 @@
 package maze;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -7,9 +8,107 @@ import java.util.stream.IntStream;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int row = sc.nextInt();
-        int col = sc.nextInt();
+        int[][] maze = null;
+        int size = 0;
+        while (true) {
+            System.out.println("=== Menu ===");
+            if (maze == null) {
+                System.out.println(
+                        "1. Generate a new maze\n" +
+                        "2. Load a maze\n" +
+                        "0. Exit");
+            } else {
+                System.out.println(
+                        "1. Generate a new maze\n" +
+                        "2. Load a maze\n" +
+                        "3. Save the maVze\n" +
+                        "4. Display the maze\n" +
+                        "0. Exit");
+            }
+//            System.out.print(">");
+            int choice = sc.nextInt();
+            sc.nextLine();
+            if (maze ==null && choice > 2) {
+                choice = -1;
+            }
+            switch (choice) {
+                case 0:
+                    System.out.println("Bye!");
+                    return;
+                case 1:
+                    System.out.println("Enter the size of a new maze");
+//                    System.out.print(">");
+                    size = sc.nextInt();
+                    sc.nextLine();
+                    maze = generateMaze(size, size);
+                    printMaze(size, size, maze);
+                    break;
+                case 2:
+                    System.out.println("File name:");
+//                    System.out.print(">");
+                    String fname = sc.nextLine();
+                    File f = new File(fname);
+                    if (!f.exists()) {
+                        System.out.println("The file ... does not exist");
+                        break;
+                    }
+                    try {
+                        BufferedReader fr = new BufferedReader(new FileReader(fname));
+                        size = Integer.parseInt(fr.readLine());
+                        maze = new int[size][size];
+                        for (int i = 0; i < size; i++) {
+                            int[] tmp = Arrays.stream(fr.readLine().split("\\s")).mapToInt(Integer::parseInt).toArray();
+                            System.arraycopy(tmp, 0, maze[i], 0, size);
+                        }
+                        fr.close();
+                    } catch (Throwable e) {
+                        System.out.println("Cannot load the maze. It has an invalid format");
+                    }
+                    break;
+                case 3: //save maze
+//                    System.out.print(">");
+                    String filename = sc.nextLine();
+                    try {
+                        PrintWriter fw = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename))));
+                        fw.println(size);
+                        for (int i = 0; i < size; i++) {
+                            for (int j = 0; j < size; j++) {
+                                fw.print(maze[i][j]);
+                                fw.print(" ");
+                            }
+                            fw.println();
+                        }
+                        fw.close();
+                        System.out.println("Successfully saving file to " + filename);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 4:
+                    printMaze(size, size, maze);
+                    break;
+                default:
+                    System.out.println("Incorrect option. Please try again");
+                    break;
+            }
 
+        }
+    }
+
+    private static void printMaze(int row, int col, int[][] maze) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                if (maze[i][j] == 0) {
+                    System.out.print("\u2588\u2588");
+                } else {
+                    System.out.print("  ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    private static int[][] generateMaze(int row, int col) {
         int nVertextHor = (int) Math.ceil((row - 2)/2.0);
         int nVertextVer = (int) Math.ceil((col - 2)/2.0);
         int totalVertext = nVertextHor * nVertextVer;
@@ -58,8 +157,10 @@ public class Main {
 //        }
 
         int[][] maze = new int[row][col];
-        maze[rand.nextInt(row - 3) + 1][0] = 1;
         int t = rand.nextInt(row - 3) + 1;
+        maze[t][0] = 1;
+        maze[t][1] = 1;
+        t = rand.nextInt(row - 3) + 1;
         maze[t][col - 1] = 1;
         maze[t][col - 2] = 1;
         // 2. Prim algorithm
@@ -91,17 +192,7 @@ public class Main {
                }
             }
         }
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (maze[i][j] == 0) {
-                    System.out.print("\u2588\u2588");
-                } else {
-                    System.out.print("  ");
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
+        return maze;
     }
 
     public static int[] prim(ArrayList<EdgeNode>[] graph, int start) {

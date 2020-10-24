@@ -479,6 +479,13 @@ files:
         }
     }
   learner_created: false
+- name: test_maze.txt
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/47/stages/253/implement
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/47/stages/253/implement">JetBrains
+    Academy</a>
+  time: Sat, 24 Oct 2020 06:28:42 UTC
 record: -1

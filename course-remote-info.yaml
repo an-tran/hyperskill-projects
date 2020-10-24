@@ -93,6 +93,8 @@ topics:
     theory_id: 5779
   - title: Kruskal's algorithm
     theory_id: 5665
+  - title: Functional decomposition
+    theory_id: 10570
   - title: Algorithms in Java
     theory_id: 3540
   - title: IDE
@@ -103,8 +105,12 @@ topics:
     theory_id: 3510
   - title: String
     theory_id: 3523
+  - title: Switch statement
+    theory_id: 3504
   - title: Defining methods
     theory_id: 3590
+  - title: The main method
+    theory_id: 3489
   - title: IntelliJ IDEA
     theory_id: 3801
   - title: IDEA Basics
